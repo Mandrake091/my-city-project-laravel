@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    protected $validationRule = [
+        'title' => 'required|string|max:100',
+        'price' => 'required',
+        'publish_date' => 'required',
+    ];
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +30,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        $products = Product::all();
+        return view('admin.products.create', compact('products'));
     }
 
     /**
@@ -36,7 +42,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->validationRule);
+        $data = $request->all();
+        $newProduct = new Product();
+        $newProduct->title = $data['title'];
+        $newProduct->price = $data['price'];
+        $newProduct->publish_date = $data['publish_date'];
+        $newProduct->save();
+        return redirect()->route('products.show', $newProduct->id);
     }
 
     /**
@@ -47,7 +60,8 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        return view('admin.products.show', compact('product'));
     }
 
     /**
@@ -58,7 +72,8 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        return view('admin.products.edit', compact('product'));
     }
 
     /**
